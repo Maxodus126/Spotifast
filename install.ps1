@@ -249,7 +249,7 @@ Write-Host -Object 'to get started'
 #region Marketplace
 $Host.UI.RawUI.Flushinputbuffer()
 $choices = [System.Management.Automation.Host.ChoiceDescription[]] @(
-    (New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Install Spicetify Marketplace."),
+    (New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Install Spotifast Marketplace."),
     (New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not install Spotifast Marketplace.")
 )
 $choice = $Host.UI.PromptForChoice('', "`nDo you also want to install Spicetify Marketplace? It will become available within the Spotify client, where you can easily install themes and extensions.", $choices, 0)
@@ -259,7 +259,7 @@ if ($choice -eq 1) {
 else {
   Write-Host -Object 'Starting the spotifast Marketplace installation script..'
   $Parameters = @{
-    Uri             = 'https://raw.githubusercontent.com/spicetify/marketplace/main/resources/install.ps1'
+    Uri             = 'https://raw.githubusercontent.com/Maxodus126/spotifast-marketplace/main/resources/install.ps1'
     UseBasicParsing = $true
   }
   Invoke-WebRequest @Parameters | Invoke-Expression

@@ -22,3 +22,4 @@ install.log
 release-bundle/
 spotifast-*.zip
 spotifast-*.tar.gz
+*.old
