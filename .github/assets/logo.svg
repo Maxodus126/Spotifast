@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1ed760"/>
+      <stop offset="55%" stop-color="#17c3b2"/>
+      <stop offset="100%" stop-color="#00b8ff"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2affa0"/>
+      <stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- background badge -->
+  <circle cx="100" cy="100" r="94" fill="#0d1117"/>
+  <circle cx="100" cy="100" r="94" fill="none" stroke="url(#ring)" stroke-width="6" opacity="0.9"/>
+
+  <!-- soundwave bars rising into a speed arrow -->
+  <g filter="url(#glow)" stroke="url(#grad)" stroke-linecap="round">
+    <!-- bars: low to high across center -->
+    <line x1="40" y1="92" x2="40" y2="108" stroke-width="9"/>
+    <line x1="60" y1="80" x2="60" y2="120" stroke-width="10"/>
+    <line x1="80" y1="66" x2="80" y2="134" stroke-width="11"/>
+    <line x1="100" y1="70" x2="100" y2="130" stroke-width="12"/>
+    <!-- arrow becomes a speed burst -->
+    <line x1="122" y1="86" x2="122" y2="114" stroke-width="12"/>
+    <line x1="144" y1="94" x2="144" y2="106" stroke-width="11"/>
+    <line x1="162" y1="97" x2="162" y2="103" stroke-width="9"/>
+  </g>
+
+  <!-- forward-play chevrons -->
+  <g fill="url(#grad)">
+    <polygon points="110,78 142,100 110,122 110,78"/>
+    <polygon points="132,78 164,100 132,122 132,78"/>
+    <polygon points="150,78 182,100 150,122" opacity="0.55"/>
+  </g>
+</svg>
