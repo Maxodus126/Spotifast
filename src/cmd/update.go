@@ -25,7 +25,7 @@ func Update(currentVersion string) bool {
 	}
 
 	utils.PrintInfo("Latest release: " + tagName)
-	var assetURL string = "https://github.com/spotifast/cli/releases/download/v" + tagName + "/spotifast-" + tagName + "-" + runtime.GOOS + "-"
+	var assetURL string = "https://github.com/Maxodus126/Spotifast/releases/download/v" + tagName + "/spotifast-" + tagName + "-" + runtime.GOOS + "-"
 	var location string = os.TempDir() + "/spotifast-" + tagName
 
 	if runtime.GOARCH == "386" && runtime.GOOS == "windows" {

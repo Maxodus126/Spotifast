@@ -18,7 +18,7 @@ func Apply(spicetifyVersion string) {
 	utils.MigrateConfigFolder()
 
 	backupSpicetifyVersion := backupSection.Key("with").MustString("")
-	if spicetifyVersion != backupSpicetifyVersion {
+	if spicetifyVersion != backupSpicetifyVersion && spicetifyVersion != "Dev" && backupSpicetifyVersion != "Dev" {
 		utils.PrintInfo(`Preprocessed Spotify data is outdated. Please run "spotifast restore backup apply" to receive new features and bug fixes`)
 		os.Exit(1)
 	}
@@ -308,10 +308,12 @@ func RefreshApps(list ...string) {
 		if err != nil {
 			manifestFileContent = []byte{'{', '}'}
 		}
-		os.WriteFile(
+		if err := os.WriteFile(
 			filepath.Join(appDestPath, "xpui", appName+".json"),
 			manifestFileContent,
-			0700)
+			0700); err != nil {
+			utils.PrintError("failed writing " + appName + ".json: " + err.Error())
+		}
 
 		var manifestJson utils.AppManifest
 		if err = json.Unmarshal(manifestFileContent, &manifestJson); err == nil {
@@ -375,10 +377,12 @@ func RefreshApps(list ...string) {
 }}]);`,
 			appName, appName, jsFileContent)
 
-		os.WriteFile(
+		if err := os.WriteFile(
 			filepath.Join(appDestPath, "xpui", appName+".js"),
 			[]byte(jsTemplate),
-			0700)
+			0700); err != nil {
+			utils.PrintError("failed writing " + appName + ".js: " + err.Error())
+		}
 
 		cssFile := filepath.Join(customAppPath, "style.css")
 		cssFileContent, err := os.ReadFile(cssFile)

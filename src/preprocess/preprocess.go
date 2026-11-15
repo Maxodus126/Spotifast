@@ -54,7 +54,7 @@ func applyPatches(input string, patches []Patch) string {
 }
 
 func readRemoteCssMap(tag string, cssTranslationMap *map[string]string) error {
-	var cssMapURL string = "https://raw.githubusercontent.com/spotifast/cli/" + tag + "/css-map.json"
+	var cssMapURL string = "https://raw.githubusercontent.com/Maxodus126/Spotifast/" + tag + "/css-map.json"
 	cssMapResp, err := http.Get(cssMapURL)
 	if err != nil {
 		return err
@@ -1195,7 +1195,7 @@ func FetchLatestTagMatchingVersion(version string) (string, error) {
 	if version == "Dev" {
 		return "Dev", nil
 	}
-	res, err := http.Get("https://api.github.com/repos/spotifast/cli/releases")
+	res, err := http.Get("https://api.github.com/repos/Maxodus126/Spotifast/releases")
 	if err != nil {
 		return "", err
 	}

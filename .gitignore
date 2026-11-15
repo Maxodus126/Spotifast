@@ -17,3 +17,8 @@ jsHelper/spicetifyWrapper.js.map
 
 # Logs
 install.log
+
+# Release build output
+release-bundle/
+spotifast-*.zip
+spotifast-*.tar.gz
