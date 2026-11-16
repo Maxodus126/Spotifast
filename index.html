@@ -3,83 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Spotifast — command-line tool to customize the official Spotify client. Colors, CSS, extensions and custom apps.">
 <title>Spotifast — Make Spotify truly yours</title>
-<link rel="icon" href="logo.png">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="94" fill="%230d1117"/><circle cx="100" cy="100" r="94" fill="none" stroke="%231ed760" stroke-width="8"/><path d="M68 92v16M86 80v40M104 76v48M122 84v32M140 92v16" stroke="%231ed760" stroke-width="9" stroke-linecap="round"/><polygon points="104,88 132,100 104,112" fill="%231ed760"/></svg>'>
 <style>
   :root{
-    --bg:#0b0f14; --bg2:#111820; --fg:#e6edf3; --muted:#8b98a5;
-    --green:#1ed760; --cyan:#00c2ff; --line:#1f2a35;
+    --bg:#0a0c0f; --bg2:#13161a; --panel:#181b20;
+    --fg:#f4f6f8; --muted:#98a2ae; --line:#24292f;
+    --green:#1ed760; --green-soft:#2affa0; --cyan:#00c2ff;
+    --grad:linear-gradient(100deg,var(--green),var(--cyan));
+    --radius:14px; --shadow:0 18px 50px rgba(0,0,0,.45);
   }
-  *{box-sizing:border-box}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
   body{
-    margin:0; background:var(--bg); color:var(--fg);
+    background:var(--bg); color:var(--fg);
     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.6; -webkit-font-smoothing:antialiased;
+    line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;
   }
-  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
-  header{display:flex;align-items:center;gap:14px;padding:22px 0;border-bottom:1px solid var(--line)}
-  header img{width:38px;height:38px;border-radius:50%}
-  header .name{font-weight:700;font-size:1.15rem;letter-spacing:-.02em}
-  header nav{margin-left:auto;display:flex;gap:20px;font-size:.9rem}
-  header nav a{color:var(--muted);text-decoration:none}
+  a{color:inherit}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 26px}
+
+  /* ambient background glow */
+  .glow{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .glow::before,.glow::after{
+    content:"";position:absolute;border-radius:50%;filter:blur(90px);opacity:.16;
+  }
+  .glow::before{width:520px;height:520px;top:-160px;left:50%;transform:translateX(-50%);background:radial-gradient(circle,var(--green),transparent 70%)}
+  .glow::after{width:420px;height:420px;bottom:-140px;right:-80px;background:radial-gradient(circle,var(--cyan),transparent 70%)}
+
+  header{position:relative;z-index:1;display:flex;align-items:center;gap:12px;padding:22px 0}
+  header .logo{width:36px;height:36px;filter:drop-shadow(0 0 12px rgba(30,215,96,.5))}
+  .brand{font-weight:800;letter-spacing:-.02em;font-size:1.1rem}
+  header nav{margin-left:auto;display:flex;gap:22px;font-size:.9rem;font-weight:500}
+  header nav a{color:var(--muted);text-decoration:none;transition:color .15s}
   header nav a:hover{color:var(--fg)}
 
-  .hero{text-align:center;padding:72px 0 56px}
-  .hero img{width:150px;height:150px;border-radius:50%;box-shadow:0 12px 48px rgba(30,215,96,.22)}
-  .hero h1{font-size:clamp(2rem,5vw,3.2rem);margin:26px 0 10px;letter-spacing:-.03em;line-height:1.1}
-  .grad{background:linear-gradient(100deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .hero p{color:var(--muted);font-size:1.1rem;max-width:600px;margin:0 auto 30px}
-  .badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-bottom:32px}
-  .badges span{border:1px solid var(--line);border-radius:999px;padding:5px 14px;background:var(--bg2)}
-
-  .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .hero{position:relative;z-index:1;text-align:center;padding:76px 0 60px}
+  .hero .logo-wrap{
+    width:128px;height:128px;margin:0 auto 30px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.06),transparent 70%);
+    border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 10px rgba(30,215,96,.04),0 20px 60px rgba(30,215,96,.2);
+  }
+  .hero .logo{width:86px;height:86px}
+  .hero h1{
+    font-size:clamp(2.2rem,6vw,3.6rem);letter-spacing:-.04em;line-height:1.08;
+    font-weight:800;
+  }
+  .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{color:var(--muted);font-size:1.12rem;max-width:600px;margin:18px auto 30px}
+  .badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-bottom:34px}
+  .badges span{
+    border:1px solid var(--line);border-radius:999px;padding:6px 14px;
+    background:rgba(255,255,255,.02);
+  }
+  .actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
   .btn{
-    display:inline-block;padding:13px 26px;border-radius:8px;text-decoration:none;
-    font-weight:600;font-size:.95rem;transition:transform .15s,box-shadow .15s,background .15s;
+    display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:999px;
+    text-decoration:none;font-weight:700;font-size:.95rem;
+    transition:transform .18s,box-shadow .18s,background .18s;cursor:pointer;
   }
-  .btn:hover{transform:translateY(-1px)}
-  .btn-primary{background:linear-gradient(100deg,var(--green),var(--cyan));color:#04120a;box-shadow:0 6px 22px rgba(30,215,96,.25)}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:var(--grad);color:#04120a;box-shadow:0 8px 30px rgba(30,215,96,.3)}
+  .btn-primary:hover{box-shadow:0 12px 38px rgba(30,215,96,.42)}
   .btn-ghost{border:1px solid var(--line);color:var(--fg);background:var(--bg2)}
-  .btn-ghost:hover{background:#18222d}
+  .btn-ghost:hover{background:#1c2127;border-color:#2e353d}
+  .btn svg{width:17px;height:17px}
 
-  section{padding:56px 0;border-top:1px solid var(--line)}
-  h2{font-size:1.5rem;margin:0 0 8px;letter-spacing:-.02em}
-  .sub{color:var(--muted);margin:0 0 28px;font-size:.95rem}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-  .card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:22px}
-  .card h3{margin:0 0 6px;font-size:1rem}
-  .card p{margin:0;color:var(--muted);font-size:.9rem}
-
-  pre{
-    background:#050a0e;border:1px solid var(--line);border-radius:10px;
-    padding:18px;overflow-x:auto;font-size:.86rem;line-height:1.7;
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  section{position:relative;z-index:1;padding:58px 0;border-top:1px solid var(--line)}
+  h2{font-size:1.7rem;letter-spacing:-.03em;font-weight:800}
+  .sub{color:var(--muted);margin:8px 0 30px;font-size:.97rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;transition:transform .2s,border-color .2s,background .2s;
   }
-  pre .c{color:#4d6373}
-  pre .k{color:var(--green)}
+  .card:hover{transform:translateY(-4px);border-color:#2e3a44;background:#1c2026}
+  .card .ico{
+    width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    background:rgba(30,215,96,.12);margin-bottom:14px;
+  }
+  .card .ico svg{width:20px;height:20px;stroke:var(--green)}
+  .card h3{font-size:1.02rem;margin-bottom:6px;font-weight:700}
+  .card p{color:var(--muted);font-size:.9rem}
 
-  .note{border-left:3px solid #d29922;background:rgba(210,153,34,.08);padding:14px 18px;border-radius:0 8px 8px 0;font-size:.88rem;color:#d9c07a}
+  h3.sec{font-size:.95rem;margin:0 0 10px;color:var(--fg)}
+  pre{
+    background:#05080b;border:1px solid var(--line);border-radius:12px;
+    padding:20px;overflow-x:auto;font-size:.87rem;line-height:1.75;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    position:relative;
+  }
+  code .c{color:#4d6373}
+  code .k{color:var(--green);font-weight:600}
+  .copy{
+    position:absolute;top:10px;right:10px;background:var(--bg2);border:1px solid var(--line);
+    color:var(--muted);font-size:.72rem;padding:5px 10px;border-radius:7px;cursor:pointer;
+    font-family:inherit;transition:color .15s,border-color .15s;
+  }
+  .copy:hover{color:var(--fg);border-color:#2e353d}
 
-  footer{border-top:1px solid var(--line);padding:30px 0 46px;color:var(--muted);font-size:.85rem;text-align:center}
-  footer a{color:var(--muted)}
+  .note{
+    border-left:3px solid #d29922;background:rgba(210,153,34,.07);
+    padding:15px 18px;border-radius:0 10px 10px 0;font-size:.88rem;color:#d9c07a;margin-top:26px;
+  }
+
+  footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted);font-size:.85rem;text-align:center}
+  footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+  footer a:hover{color:var(--fg)}
+
+  @media (max-width:560px){
+    header nav{gap:14px}
+    .hero{padding:54px 0 44px}
+    section{padding:44px 0}
+  }
 </style>
 </head>
 <body>
 
+<div class="glow"></div>
 <div class="wrap">
+
   <header>
-    <img src="logo.png" alt="Spotifast">
-    <span class="name">Spotifast</span>
+    <svg class="logo" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="94" fill="#0d1117"/>
+      <circle cx="100" cy="100" r="94" fill="none" stroke="url(#g)" stroke-width="8"/>
+      <g stroke="url(#g)" stroke-linecap="round">
+        <line x1="48" y1="94" x2="48" y2="106" stroke-width="9"/>
+        <line x1="68" y1="84" x2="68" y2="116" stroke-width="10"/>
+        <line x1="88" y1="72" x2="88" y2="128" stroke-width="11"/>
+        <line x1="124" y1="80" x2="124" y2="120" stroke-width="11"/>
+        <line x1="144" y1="90" x2="144" y2="110" stroke-width="10"/>
+        <line x1="160" y1="95" x2="160" y2="105" stroke-width="9"/>
+      </g>
+      <polygon points="108,82 140,100 108,118" fill="url(#g)"/>
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1ed760"/><stop offset="1" stop-color="#00c2ff"/>
+      </linearGradient></defs>
+    </svg>
+    <span class="brand">Spotifast</span>
     <nav>
-      <a href="#install">Install</a>
       <a href="#features">Features</a>
+      <a href="#install">Install</a>
       <a href="https://github.com/Maxodus126/Spotifast">GitHub</a>
     </nav>
   </header>
 
   <div class="hero">
-    <img src="logo.png" alt="Spotifast logo">
-    <h1>Make Spotify <span class="grad">truly yours</span>.</h1>
+    <div class="logo-wrap">
+      <svg class="logo" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="94" fill="#0d1117"/>
+        <circle cx="100" cy="100" r="94" fill="none" stroke="url(#g2)" stroke-width="8"/>
+        <g stroke="url(#g2)" stroke-linecap="round">
+          <line x1="48" y1="94" x2="48" y2="106" stroke-width="9"/>
+          <line x1="68" y1="84" x2="68" y2="116" stroke-width="10"/>
+          <line x1="88" y1="72" x2="88" y2="128" stroke-width="11"/>
+          <line x1="124" y1="80" x2="124" y2="120" stroke-width="11"/>
+          <line x1="144" y1="90" x2="144" y2="110" stroke-width="10"/>
+          <line x1="160" y1="95" x2="160" y2="105" stroke-width="9"/>
+        </g>
+        <polygon points="108,82 140,100 108,118" fill="url(#g2)"/>
+        <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#1ed760"/><stop offset="1" stop-color="#00c2ff"/>
+        </linearGradient></defs>
+      </svg>
+    </div>
+    <h1>Make Spotify<br><span class="grad">truly yours</span>.</h1>
     <p>Command-line tool to customize the official Spotify client — colors, CSS, extensions and custom apps.</p>
     <div class="badges">
       <span>Open Source</span>
@@ -87,7 +177,10 @@
       <span>Windows · macOS · Linux</span>
     </div>
     <div class="actions">
-      <a class="btn btn-primary" href="https://github.com/Maxodus126/Spotifast/releases/latest">Download</a>
+      <a class="btn btn-primary" href="https://github.com/Maxodus126/Spotifast/releases/latest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Download
+      </a>
       <a class="btn btn-ghost" href="#install">How to install</a>
     </div>
   </div>
@@ -96,10 +189,22 @@
     <h2>Features</h2>
     <p class="sub">The same engine as Spicetify, rebranded.</p>
     <div class="grid">
-      <div class="card"><h3>Custom colors</h3><p>Change every color across the Spotify UI.</p></div>
-      <div class="card"><h3>CSS injection</h3><p>Full control over styling with your own CSS.</p></div>
-      <div class="card"><h3>Extensions</h3><p>Add functionality, control the player, remap keys.</p></div>
-      <div class="card"><h3>Custom apps</h3><p>Add new pages like lyrics, new releases and Reddit.</p></div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg></div>
+        <h3>Custom colors</h3><p>Change every color across the Spotify UI.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
+        <h3>CSS injection</h3><p>Full control over styling with your own CSS.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></div>
+        <h3>Extensions</h3><p>Add functionality, control the player, remap keys.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></div>
+        <h3>Custom apps</h3><p>Add new pages like lyrics, new releases and Reddit.</p>
+      </div>
     </div>
   </section>
 
@@ -112,7 +217,7 @@
       <div class="card"><h3>Snippets</h3><p>Small CSS fixes you can paste straight into your client.</p></div>
       <div class="card"><h3>Apps</h3><p>Custom pages that extend Spotify itself.</p></div>
     </div>
-    <p style="text-align:center;margin-top:26px">
+    <p style="text-align:center;margin-top:30px">
       <a class="btn btn-ghost" href="https://github.com/Maxodus126/spotifast-marketplace">Spotifast Marketplace on GitHub</a>
     </p>
   </section>
@@ -121,22 +226,22 @@
     <h2>Install</h2>
     <p class="sub">Spotify must already be installed. Spotifast is a CLI tool — there is no setup.exe.</p>
 
-    <h3 style="font-size:.95rem;margin:0 0 8px">Windows (PowerShell)</h3>
-<pre><span class="c"># install</span>
+    <h3 class="sec">Windows (PowerShell)</h3>
+    <pre><button class="copy" data-copy="iwr -useb https://raw.githubusercontent.com/Maxodus126/Spotifast/main/install.ps1 | iex">Copy</button><code><span class="c"># install</span>
 iwr -useb https://raw.githubusercontent.com/Maxodus126/Spotifast/main/install.ps1 | iex
 
 <span class="c"># back up Spotify, then apply</span>
 <span class="k">spotifast</span> backup
-<span class="k">spotifast</span> apply</pre>
+<span class="k">spotifast</span> apply</code></pre>
 
-    <h3 style="font-size:.95rem;margin:26px 0 8px">Linux / macOS</h3>
-<pre><span class="c"># install</span>
+    <h3 class="sec" style="margin-top:26px">Linux / macOS</h3>
+    <pre><button class="copy" data-copy="curl -fsSL https://raw.githubusercontent.com/Maxodus126/Spotifast/main/install.sh | sh">Copy</button><code><span class="c"># install</span>
 curl -fsSL https://raw.githubusercontent.com/Maxodus126/Spotifast/main/install.sh | sh
 
 <span class="k">spotifast</span> backup
-<span class="k">spotifast</span> apply</pre>
+<span class="k">spotifast</span> apply</code></pre>
 
-    <div class="note" style="margin-top:24px">
+    <div class="note">
       <strong>Before you install:</strong> Spotifast patches Spotify's files, violates Spotify's Terms of Service (a ban is possible), and does <strong>not</strong> remove ads. Ad-free listening requires Spotify Premium. Use at your own risk.
     </div>
   </section>
@@ -145,7 +250,24 @@ curl -fsSL https://raw.githubusercontent.com/Maxodus126/Spotifast/main/install.s
     Spotifast is a rebranded fork of <a href="https://github.com/spicetify/cli">Spicetify CLI</a>, licensed under LGPL-2.1.<br>
     Copyright belongs to the original Spicetify contributors.
   </footer>
+
 </div>
+
+<script>
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var txt = btn.getAttribute('data-copy');
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(txt).then(function(){ flash(btn); });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); flash(btn); } finally { document.body.removeChild(ta); }
+      }
+    });
+  });
+  function flash(btn){ var t = btn.textContent; btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = t; }, 1400); }
+</script>
 
 </body>
 </html>
