@@ -1,5 +1,8 @@
 $ErrorActionPreference = 'Continue'
 # Spotifast uninstaller — restores Spotify to stock state, then removes Spotifast.
+# Usage: powershell -ExecutionPolicy Bypass -File uninstall.ps1 [-KeepUserData]
+
+param([switch]$KeepUserData)
 
 $spotifastFolder = "$env:LOCALAPPDATA\spotifast"
 $userDataFolder  = "$env:APPDATA\spotifast"
@@ -33,14 +36,27 @@ if (Test-Path -LiteralPath $spotifastFolder) {
 
 # 4. Remove user data (config, backup, themes, extensions)
 if (Test-Path -LiteralPath $userDataFolder) {
-  $Host.UI.RawUI.FlushInputbuffer()
-  $c = [System.Management.Automation.Host.ChoiceDescription[]] @(
-    (New-Object System.Management.Automation.Host.ChoiceDescription '&Yes', 'Delete config, backups, themes and extensions.'),
-    (New-Object System.Management.Automation.Host.ChoiceDescription '&No',  'Keep my user data.')
-  )
-  if ($Host.UI.PromptForChoice('', "Delete user data in $userDataFolder ?", $c, 1) -eq 0) {
+  $delete = $KeepUserData ? $false : $true
+  if (-not $delete) {
+    # interactive confirmation only when running in a real console
+    try {
+      $Host.UI.RawUI.FlushInputbuffer()
+      $c = [System.Management.Automation.Host.ChoiceDescription[]] @(
+        (New-Object System.Management.Automation.Host.ChoiceDescription '&Yes', 'Delete config, backups, themes and extensions.'),
+        (New-Object System.Management.Automation.Host.ChoiceDescription '&No',  'Keep my user data.')
+      )
+      $answer = $Host.UI.PromptForChoice('', "Delete user data in $userDataFolder ?", $c, 1)
+      $delete = ($answer -eq 0)
+    } catch {
+      Write-Host "Could not prompt (non-interactive). Keeping user data." -ForegroundColor Yellow
+      $delete = $false
+    }
+  }
+  if ($delete) {
     Remove-Item -LiteralPath $userDataFolder -Recurse -Force -ErrorAction SilentlyContinue
     Write-Host 'Removed user data.' -ForegroundColor Green
+  } else {
+    Write-Host "Kept user data in $userDataFolder" -ForegroundColor Yellow
   }
 }
 

@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
-	"strings"
 	"sync"
 
 	colorable "github.com/mattn/go-colorable"
@@ -293,10 +292,14 @@ func main() {
 				cmds = append([]string{"restore"}, cmds...)
 			}
 
+			// Re-exec the updated binary with the original subcommands,
+			// minus the top-level "update"/"upgrade" keyword so we don't
+			// loop forever re-triggering the update.
+			restartArgs := slices.DeleteFunc(append([]string{}, commands...), func(s string) bool {
+				return s == "update" || s == "upgrade"
+			})
+			cmds = append(cmds, restartArgs...)
 			cmd := exec.Command(ex, cmds...)
-			utils.CmdScanner(cmd)
-
-			cmd = exec.Command(ex, strings.Join(commands[:], " "))
 			utils.CmdScanner(cmd)
 		}
 

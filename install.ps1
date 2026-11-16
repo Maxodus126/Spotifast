@@ -86,7 +86,7 @@ function Get-Spotifast {
     }
     else {
       Write-Host -Object 'Fetching the latest spotifast version...' -NoNewline
-      $latestRelease = Invoke-RestMethod -Uri 'https://api.github.com/repos/spotifast/cli/releases/latest'
+      $latestRelease = Invoke-RestMethod -Uri 'https://api.github.com/repos/Maxodus126/Spotifast/releases/latest'
       $targetVersion = $latestRelease.tag_name -replace 'v', ''
       Write-Success
     }
@@ -95,7 +95,7 @@ function Get-Spotifast {
   process {
     Write-Host -Object "Downloading spotifast v$targetVersion..." -NoNewline
     $Parameters = @{
-      Uri            = "https://github.com/spotifast/cli/releases/download/v$targetVersion/spotifast-$targetVersion-windows-$architecture.zip"
+      Uri            = "https://github.com/Maxodus126/Spotifast/releases/download/v$targetVersion/spotifast-$targetVersion-windows-$architecture.zip"
       UseBasicParsin = $true
       OutFile        = $archivePath
     }
