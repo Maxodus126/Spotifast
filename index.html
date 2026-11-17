@@ -108,6 +108,11 @@
     border-left:3px solid #d29922;background:rgba(210,153,34,.07);
     padding:15px 18px;border-radius:0 10px 10px 0;font-size:.88rem;color:#d9c07a;margin-top:26px;
   }
+  .pwnote{
+    border-left:3px solid var(--cyan);background:rgba(0,194,255,.07);
+    padding:13px 16px;border-radius:0 10px 10px 0;font-size:.9rem;color:#bcd8e6;margin:6px 0 14px;
+  }
+  .pwnote code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.85em;color:var(--cyan)}
 
   footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted);font-size:.85rem;text-align:center}
   footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
@@ -177,11 +182,11 @@
       <span>Windows · macOS · Linux</span>
     </div>
     <div class="actions">
-      <a class="btn btn-primary" href="https://github.com/Maxodus126/Spotifast/releases/latest">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-        Download
+      <a class="btn btn-primary" href="#install">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 16V4"/></svg>
+        Install now
       </a>
-      <a class="btn btn-ghost" href="#install">How to install</a>
+      <a class="btn btn-ghost" href="https://github.com/Maxodus126/Spotifast/releases/latest">View releases</a>
     </div>
   </div>
 
@@ -227,7 +232,13 @@
     <p class="sub">Spotify must already be installed. Spotifast is a CLI tool — there is no setup.exe.</p>
 
     <h3 class="sec">Windows (PowerShell)</h3>
-    <pre><button class="copy" data-copy="iwr -useb https://raw.githubusercontent.com/Maxodus126/Spotifast/main/install.ps1 | iex">Copy</button><code><span class="c"># install</span>
+    <div class="pwnote">
+      ⚠️ <strong>Gunakan Windows PowerShell, bukan Command Prompt (cmd).</strong> Perintah
+      <code>iwr</code> dan <code>iex</code> hanya tersedia di PowerShell. Jika muncul error
+      <em>'iwr' is not recognized</em>, kamu masih berada di <strong>cmd</strong> — buka
+      <strong>PowerShell</strong> dari Start Menu, lalu ulangi perintah di bawah.
+    </div>
+    <pre><button class="copy" data-copy="iwr -useb https://raw.githubusercontent.com/Maxodus126/Spotifast/main/install.ps1 | iex">Copy</button><code><span class="c"># 1. install (wajib di PowerShell)</span>
 iwr -useb https://raw.githubusercontent.com/Maxodus126/Spotifast/main/install.ps1 | iex
 
 <span class="c"># back up Spotify, then apply</span>
