@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"net/http"
 	"os"
 	"path"
 	"path/filepath"
@@ -55,7 +54,7 @@ func applyPatches(input string, patches []Patch) string {
 
 func readRemoteCssMap(tag string, cssTranslationMap *map[string]string) error {
 	var cssMapURL string = "https://raw.githubusercontent.com/Maxodus126/Spotifast/" + tag + "/css-map.json"
-	cssMapResp, err := http.Get(cssMapURL)
+	cssMapResp, err := utils.HTTPClient.Get(cssMapURL)
 	if err != nil {
 		return err
 	}
@@ -1152,8 +1151,8 @@ type githubRelease = utils.GithubRelease
 
 func splitVersion(version string) ([3]int, error) {
 	vstring := version
-	if vstring[0:1] == "v" {
-		vstring = version[1:]
+	if len(vstring) > 0 && vstring[0:1] == "v" {
+		vstring = vstring[1:]
 	}
 	vSplit := strings.Split(vstring, ".")
 	var vInts [3]int
@@ -1195,7 +1194,7 @@ func FetchLatestTagMatchingVersion(version string) (string, error) {
 	if version == "Dev" {
 		return "Dev", nil
 	}
-	res, err := http.Get("https://api.github.com/repos/Maxodus126/Spotifast/releases")
+	res, err := utils.HTTPClient.Get("https://api.github.com/repos/Maxodus126/Spotifast/releases")
 	if err != nil {
 		return "", err
 	}
@@ -1211,6 +1210,9 @@ func FetchLatestTagMatchingVersion(version string) (string, error) {
 		return "", err
 	}
 	curVer := strings.Split(version, ".")
+	if len(curVer) < 3 {
+		return "", errors.New("invalid version string")
+	}
 	curVerMin, err2 := strconv.Atoi(curVer[2])
 	if err2 != nil {
 		return "", err2

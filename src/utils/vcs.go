@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"net/http"
 )
 
 type GithubRelease struct {
@@ -13,7 +12,7 @@ type GithubRelease struct {
 }
 
 func FetchLatestTag() (string, error) {
-	res, err := http.Get("https://api.github.com/repos/Maxodus126/Spotifast/releases/latest")
+	res, err := HTTPClient.Get("https://api.github.com/repos/Maxodus126/Spotifast/releases/latest")
 	if err != nil {
 		return "", err
 	}

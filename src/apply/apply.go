@@ -136,6 +136,17 @@ func UserAsset(appsFolderPath, themeFolder string) {
 	}
 }
 
+// htmlEscape escapes a value for embedding inside an HTML attribute/script
+// tag so a config-provided name cannot break out of the tag or inject markup.
+func htmlEscape(s string) string {
+	s = strings.ReplaceAll(s, "&", "&amp;")
+	s = strings.ReplaceAll(s, "<", "&lt;")
+	s = strings.ReplaceAll(s, ">", "&gt;")
+	s = strings.ReplaceAll(s, `"`, "&quot;")
+	s = strings.ReplaceAll(s, "'", "&#39;")
+	return s
+}
+
 func htmlMod(htmlPath string, flags Flag) {
 	var extensionsHTML strings.Builder
 	var helperHTML strings.Builder
@@ -182,21 +193,24 @@ func htmlMod(htmlPath string, flags Flag) {
 	}
 
 	for _, v := range flags.Extension {
-		if strings.HasSuffix(v, ".mjs") {
-			fmt.Fprintf(&extensionsHTML, "<script defer type='module' src='extensions/%s'></script>\n", v)
+		esc := htmlEscape(v)
+		if strings.HasSuffix(esc, ".mjs") {
+			fmt.Fprintf(&extensionsHTML, "<script defer type='module' src='extensions/%s'></script>\n", esc)
 		} else {
-			fmt.Fprintf(&extensionsHTML, "<script defer src='extensions/%s'></script>\n", v)
+			fmt.Fprintf(&extensionsHTML, "<script defer src='extensions/%s'></script>\n", esc)
 		}
 	}
 
 	for _, v := range flags.CustomApp {
+		esc := htmlEscape(v)
 		manifest, _, err := utils.GetAppManifest(v)
 		if err == nil {
 			for _, extensionFile := range manifest.ExtensionFiles {
-				if strings.HasSuffix(extensionFile, ".mjs") {
-					fmt.Fprintf(&extensionsHTML, "<script defer type='module' src='extensions/%s/%s'></script>\n", v, extensionFile)
+				escExt := htmlEscape(extensionFile)
+				if strings.HasSuffix(escExt, ".mjs") {
+					fmt.Fprintf(&extensionsHTML, "<script defer type='module' src='extensions/%s/%s'></script>\n", esc, escExt)
 				} else {
-					fmt.Fprintf(&extensionsHTML, "<script defer src='extensions/%s/%s'></script>\n", v, extensionFile)
+					fmt.Fprintf(&extensionsHTML, "<script defer src='extensions/%s/%s'></script>\n", esc, escExt)
 				}
 			}
 		}

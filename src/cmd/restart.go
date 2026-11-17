@@ -61,6 +61,14 @@ func killSpotifyDarwin(run func(string, ...string) error) error {
 	}
 }
 
+// psQuote quotes a single argument for embedding in a PowerShell script string.
+// Every token is wrapped in single quotes and internal single quotes are doubled,
+// so the resulting text is treated as one literal argument regardless of its
+// content — a config-provided flag cannot break out to run arbitrary commands.
+func psQuote(s string) string {
+	return "'" + strings.ReplaceAll(s, "'", "''") + "'"
+}
+
 func SpotifyStart(flags ...string) {
 	enableDevtools := settingSection.Key("always_enable_devtools").MustBool(false)
 	if enableDevtools {
@@ -77,9 +85,9 @@ func SpotifyStart(flags ...string) {
 		if isAppX {
 			ps, _ := exec.LookPath("powershell.exe")
 			exe := filepath.Join(os.Getenv("LOCALAPPDATA"), "Microsoft", "WindowsApps", "Spotify.exe")
-			cmd := `& "` + exe + `" --app-directory="` + appDestPath + `"`
-			if len(flags) > 0 {
-				cmd += " " + strings.Join(flags, " ")
+			cmd := "& " + psQuote(exe) + " --app-directory=" + psQuote(appDestPath)
+			for _, f := range flags {
+				cmd += " " + psQuote(f)
 			}
 			exec.Command(ps, "-NoProfile", "-NonInteractive", "-Command", cmd).Start()
 		} else {

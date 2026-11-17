@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,7 +52,10 @@ func WatchRecursive(root string, callbackEach func(fileName string, err error), 
 	for {
 		finalCallback := false
 
-		filepath.WalkDir(root, func(filePath string, info os.DirEntry, _ error) error {
+		filepath.WalkDir(root, func(filePath string, info os.DirEntry, err error) error {
+			if err != nil || info == nil {
+				return err
+			}
 			if info.IsDir() {
 				return nil
 			}
@@ -94,7 +96,7 @@ type debugger struct {
 // GetDebuggerPath fetches opening debugger list from localhost and returns
 // the Spotify one.
 func GetDebuggerPath() string {
-	res, err := http.Get("http://localhost:9222/json/list")
+	res, err := HTTPClient.Get("http://localhost:9222/json/list")
 	if err != nil {
 		return ""
 	}

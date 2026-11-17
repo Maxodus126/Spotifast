@@ -220,6 +220,8 @@ func main() {
 
 				if len(commands) == 0 && len(flags) == 0 {
 					return utils.GetExecutableDir(), nil
+				} else if slices.Contains(flags, "-c") {
+					return cmd.GetConfigPath(), nil
 				} else if commands[0] == "all" {
 					return cmd.AllPaths()
 				} else if commands[0] == "userdata" {
@@ -301,6 +303,9 @@ func main() {
 			cmds = append(cmds, restartArgs...)
 			cmd := exec.Command(ex, cmds...)
 			utils.CmdScanner(cmd)
+			// The re-exec'd child performs backup+apply. Stop the old process here
+			// so the work is not applied a second time with stale in-memory state.
+			return
 		}
 
 		spotStat := spotifystatus.Get(spotifyPath)

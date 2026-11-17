@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,6 +22,10 @@ import (
 )
 
 var regexpCache sync.Map
+
+// HTTPClient is the shared HTTP client used for all network requests so that a
+// stalled connection cannot block backup/apply/update/watch indefinitely.
+var HTTPClient = &http.Client{Timeout: 15 * time.Second}
 
 func getRegexp(pattern string) *regexp.Regexp {
 	if cached, ok := regexpCache.Load(pattern); ok {
@@ -363,8 +368,16 @@ func CreateJunction(location, destination string) error {
 	CheckExistAndDelete(destination)
 	switch runtime.GOOS {
 	case "windows":
-		exec.Command("cmd", "/C", "rmdir", destination).Run()
-		return exec.Command("cmd", "/C", "mklink", "/J", destination, location).Run()
+		// cmd.exe is a shell: reject metacharacters so a path cannot be used to
+		// execute arbitrary commands, then quote each argument (also fixes
+		// paths containing spaces).
+		if strings.ContainsAny(location, "\"&|^<>()%!\r\n\t") ||
+			strings.ContainsAny(destination, "\"&|^<>()%!\r\n\t") {
+			return fmt.Errorf("cannot create junction: unsafe characters in path")
+		}
+		quote := func(s string) string { return `"` + s + `"` }
+		exec.Command("cmd", "/C", "rmdir", quote(destination)).Run()
+		return exec.Command("cmd", "/C", "mklink", "/J", quote(destination), quote(location)).Run()
 	case "linux", "darwin":
 		return exec.Command("ln", "-Fsf", location, destination).Run()
 	}
