@@ -1,3 +1,8 @@
+param(
+  [string]$v,
+  [switch]$NoMarketplace
+)
+
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -247,22 +252,24 @@ Write-Host -Object 'to get started'
 #endregion Spotifast
 
 #region Marketplace
-$Host.UI.RawUI.Flushinputbuffer()
-$choices = [System.Management.Automation.Host.ChoiceDescription[]] @(
-    (New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", "Install Spotifast Marketplace."),
-    (New-Object System.Management.Automation.Host.ChoiceDescription "&No", "Do not install Spotifast Marketplace.")
-)
-$choice = $Host.UI.PromptForChoice('', "`nDo you also want to install Spicetify Marketplace? It will become available within the Spotify client, where you can easily install themes and extensions.", $choices, 0)
-if ($choice -eq 1) {
-  Write-Host -Object 'spotifast Marketplace installation aborted' -ForegroundColor 'Yellow'
+if ($NoMarketplace) {
+  Write-Host -Object 'Skipping Marketplace installation (-NoMarketplace).' -ForegroundColor 'Yellow'
 }
 else {
-  Write-Host -Object 'Starting the spotifast Marketplace installation script..'
-  $Parameters = @{
-    Uri             = 'https://raw.githubusercontent.com/Maxodus126/spotifast-marketplace/main/resources/install.ps1'
-    UseBasicParsing = $true
+  Write-Host -Object 'Installing Spotifast Marketplace (part of this setup)...' -ForegroundColor 'Cyan'
+  try {
+    $marketParams = @{
+      Uri             = 'https://raw.githubusercontent.com/Maxodus126/spotifast-marketplace/main/resources/install.ps1'
+      UseBasicParsing = $true
+    }
+    $marketScript = Invoke-WebRequest @marketParams
+    Invoke-Expression $marketScript.Content
   }
-  Invoke-WebRequest @Parameters | Invoke-Expression
+  catch {
+    Write-Host -Object "Marketplace installation encountered an error: $($_.Exception.Message)" -ForegroundColor 'Yellow'
+    Write-Host -Object 'You can install it later with:' -ForegroundColor 'Yellow'
+    Write-Host -Object '  iwr -useb https://raw.githubusercontent.com/Maxodus126/spotifast-marketplace/main/resources/install.ps1 | iex' -ForegroundColor 'Cyan'
+  }
 }
 #endregion Marketplace
 #endregion Main
